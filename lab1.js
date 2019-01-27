@@ -152,7 +152,7 @@ function drawScene(gl, programInfo, buffers, deltaTime, vertexCount) {
   const fieldOfView = 90 * Math.PI / 180;   // in radians
   const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
   const zNear = 0.1;
-  const zFar = 10.0;
+  const zFar = 300.0;
   const projectionMatrix = mat4.create();
 
 //   note: glmatrix.js always has the first argument
@@ -172,11 +172,11 @@ function drawScene(gl, programInfo, buffers, deltaTime, vertexCount) {
 
   mat4.translate(modelViewMatrix,     // destination matrix
     modelViewMatrix,     // matrix to translate
-    [0.0, 0.0, -3.0]);  // amount to translate
+    [0.0, 0.0, -15.0]);  // amount to translate
   mat4.rotate(modelViewMatrix,  // destination matrix
     modelViewMatrix,  // matrix to rotate
     rotation,// amount to rotate in radians
-    [0, 3, 0]);       // axis to rotate around (y)
+    [0, 1, 0]);       // axis to rotate around (y)
 
   // Tell WebGL how to pull out the positions from the position
   // buffer into the vertexPosition attribute

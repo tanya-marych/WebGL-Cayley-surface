@@ -1,36 +1,41 @@
+getX = (u,v) => u + v;
+getY = (u,v) => (Math.pow(u,2)+Math.pow(v,2))/2 + a*(v-u);
+getZ = (u,v) => (Math.pow(u,3)+Math.pow(v,3))/3 + a*(Math.pow(v,2)-Math.pow(u,2));
+
 function getPoints () {
     let positions = [];
 
-    const getZ = (x,y) => x*y - Math.pow(x,3)/6;
     const pushPoint = val => val.map(i => positions.push(i));
     
-    for (let x = -diapazon; x < diapazon; x += step) {
-        for (let y = -diapazon; y < diapazon; y += step) {
-            let x0 = x;
-            let y0 = y;
-            let z0 = getZ(x0, y0);
+    for (let u = -diapazon; u <= diapazon; u += step) {
+        for (let v = -diapazon; v <= diapazon; v += step) {
+            const u0 = u;
+            const v0 = v;
+            const u1 = u+step;
+            const v1 = v+step;
+
+            let x0 = getX(u0, v0);
+            let y0 = getY(u0, v0);
+            let z0 = getZ(u0, v0);
 
             //left top point
-            let xL = x0;
-            let yL = y0 + step;
-            let zL = getZ(xL, yL);
+            let xL = getX(u0, v1);
+            let yL = getY(u0, v1);
+            let zL = getZ(u0, v1);
 
-            let x1 = x + step;
-            let y1 = y + step;
-            let z1 = getZ(x1, y1);
+            let x1 = getX(u1, v1);
+            let y1 = getY(u1, v1);
+            let z1 = getZ(u1, v1);
 
             //right bottom point
-            let xR = x0 + step;
-            let yR = y0;
-            let zR = getZ(xR, yR);
-
-            const z = x*y - Math.pow(x,3)/6;
+            let xR = getX(u1, v0);
+            let yR = getY(u1, v0);
+            let zR = getZ(u1, v0);
 
             pushPoint([x0, z0, y0]);
             pushPoint([xL, zL, yL]);
             pushPoint([x1, z1, y1]);
             pushPoint([xR, zR, yR]);
-            
         }
     }
 
@@ -44,8 +49,8 @@ function getIndices(positions) {
     let i = 0;
 
     while (i < positions.length) {
-        pushInd([i, i+2, i+1]);
-        pushInd([i, i+3, i+2]);
+        pushInd([i, i+1, i+3]);
+        pushInd([i+1, i+2, i+3]);
         i = i + 4;
     }
 

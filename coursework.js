@@ -156,7 +156,7 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime, vertexCount) {
   const fieldOfView = 90 * Math.PI / 180;   // in radians
   const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
   const zNear = 0.1;
-  const zFar = 10.0;
+  const zFar = 100.0;
   const projectionMatrix = mat4.create();
 
   mat4.perspective(projectionMatrix,
@@ -173,11 +173,12 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime, vertexCount) {
   // start drawing the square.
   mat4.translate(modelViewMatrix,
     modelViewMatrix,     // matrix to translate
-    [0.0, 0.0, -3.0]);  // amount to translate
+    [0.0, 0, -15.0]);  // amount to translate
   mat4.rotate(modelViewMatrix,  // destination matrix
     modelViewMatrix,  // matrix to rotate
     rotation,// amount to rotate in radians
-    [0, 3, 0]);       // axis to rotate around (y)
+    [0, 1, 0]);       // axis to rotate around (y)
+  
 
   // Tell WebGL how to pull out the positions from the position
   // buffer into the vertexPosition attribute
