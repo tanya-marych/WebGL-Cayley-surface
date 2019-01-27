@@ -89,7 +89,13 @@ function main() {
   requestAnimationFrame(render);
 }
 
+//
+// initBuffers
+//
+
+
 function initBuffers(gl) {
+
   // Create a buffer for the cube's vertex positions.
   const positionBuffer = gl.createBuffer();
 
@@ -104,9 +110,10 @@ function initBuffers(gl) {
   // Now pass the list of positions into WebGL to build the
   // shape. We do this by creating a Float32Array from the
   // JavaScript array, then use it to fill the current buffer.
+
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-
+  // Now set up the colors for the faces.
   const faces = getFaces(positions);
   console.log('faces', faces);
   vertexCount = faces.length;
@@ -118,16 +125,13 @@ function initBuffers(gl) {
   gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);
 
-  // This array defines each face as two triangles, using the
-  // indices into the vertex array to specify each triangle's
-  // position.
+  const indices = getIndices(positions);
+  console.log('indices', indices);
+
   const indexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-  const indices = getIndices(positions);
-  console.log('indices', indices)
-
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,
+      new Uint16Array(indices), gl.STATIC_DRAW);
 
   return {
     position: positionBuffer,
@@ -140,30 +144,21 @@ function initBuffers(gl) {
 // Draw the scene.
 //
 function drawScene(gl, programInfo, buffers, texture, deltaTime, vertexCount) {
-  gl.clearColor(0.5, 0.5, 0.5, 1.0);  // Clear to black, fully opaque
+  gl.clearColor(0.5, 0.5, 0.5, 1.0);
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
   gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
   // Clear the canvas before we start drawing on it.
-
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  // Create a perspective matrix, a special matrix that is
-  // used to simulate the distortion of perspective in a camera.
-  // Our field of view is 45 degrees, with a width/height
-  // ratio that matches the display size of the canvas
-  // and we only want to see objects between 0.1 units
-  // and 100 units away from the camera.
-
+  // Camera
   const fieldOfView = 90 * Math.PI / 180;   // in radians
   const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
   const zNear = 0.1;
   const zFar = 10.0;
   const projectionMatrix = mat4.create();
 
-//   note: glmatrix.js always has the first argument
-//   as the destination to receive the result.
   mat4.perspective(projectionMatrix,
     fieldOfView,
     aspect,
@@ -176,8 +171,7 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime, vertexCount) {
 
   // Now move the drawing position a bit to where we want to
   // start drawing the square.
-
-  mat4.translate(modelViewMatrix,     // destination matrix
+  mat4.translate(modelViewMatrix,
     modelViewMatrix,     // matrix to translate
     [0.0, 0.0, -3.0]);  // amount to translate
   mat4.rotate(modelViewMatrix,  // destination matrix
@@ -195,18 +189,18 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime, vertexCount) {
     const offset = 0;
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
     gl.vertexAttribPointer(
-        programInfo.attribLocations.vertexPosition,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset);
-    gl.enableVertexAttribArray(
-        programInfo.attribLocations.vertexPosition);
+      programInfo.attribLocations.vertexPosition,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset
+    );
+    gl.enableVertexAttribArray( programInfo.attribLocations.vertexPosition);
   }
 
-  // Tell WebGL how to pull out the colors from the color buffer
-  // into the vertexColor attribute.
+  // Tell WebGL how to pull out the texture from the textures buffer
+  // into the textureCoord attribute.
   {
     const numComponents = 2;
     const type = gl.FLOAT;
@@ -215,14 +209,14 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime, vertexCount) {
     const offset = 0;
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textures);
     gl.vertexAttribPointer(
-        programInfo.attribLocations.textureCoord,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset);
-    gl.enableVertexAttribArray(
-        programInfo.attribLocations.textureCoord);
+      programInfo.attribLocations.textureCoord,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset
+    );
+    gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
   }
 
   // Tell WebGL which indices to use to index the vertices
@@ -233,18 +227,18 @@ function drawScene(gl, programInfo, buffers, texture, deltaTime, vertexCount) {
   gl.useProgram(programInfo.program);
 
   // Set the shader uniforms
-
   gl.uniformMatrix4fv(
-      programInfo.uniformLocations.projectionMatrix,
-      false,
-      projectionMatrix);
+    programInfo.uniformLocations.projectionMatrix,
+    false,
+    projectionMatrix
+  );
   gl.uniformMatrix4fv(
-      programInfo.uniformLocations.modelViewMatrix,
-      false,
-      modelViewMatrix);
+    programInfo.uniformLocations.modelViewMatrix,
+    false,
+    modelViewMatrix
+  );
 
-   // Specify the texture to map onto the faces.
-
+  // Specify the texture to map onto the faces.
   // Tell WebGL we want to affect texture unit 0
   gl.activeTexture(gl.TEXTURE0);
 
